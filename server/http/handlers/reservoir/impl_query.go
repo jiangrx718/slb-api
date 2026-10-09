@@ -10,8 +10,8 @@ import (
 
 // QueryRequest 查询请求
 type QueryRequest struct {
-	Stcd    []string `json:"stcd" binding:"required,min=1,dive,required"`     // 站点编号数组
-	SlbType []string `json:"slb-type" binding:"required,min=1,dive,required"` // 数据类型数组: attr / capacity / discharge
+	Stcd    []string `json:"stcd" binding:"required,min=1,dive,required"` // 站点编号数组
+	SlbType []string `json:"slb-type"`                                    // 数据类型数组: attr / capacity / discharge，为空时默认查询全部三类
 }
 
 func (h *ReservoirHandler) Query(ctx *gin.Context) {

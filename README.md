@@ -94,7 +94,7 @@ tools:
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | stcd | string[] | 是 | 站点编号数组，如 `["7I505060","81811813"]` |
-| slb-type | string[] | 是 | 数据类型数组，可选值 `attr`（特征属性）/ `capacity`（库容曲线）/ `discharge`（泄流曲线） |
+| slb-type | string[] | 否 | 数据类型数组，可选值 `attr`（特征属性）/ `capacity`（库容曲线）/ `discharge`（泄流曲线）；未传或为空数组时默认查询全部三类 |
 
 ```bash
 curl -s -X POST http://127.0.0.1:8080/api/reservoir/query \
@@ -102,7 +102,8 @@ curl -s -X POST http://127.0.0.1:8080/api/reservoir/query \
   -d '{"stcd":["7I505060","81811813"],"slb-type":["attr","capacity","discharge"]}'
 ```
 
-响应（`data.list` 与请求 `stcd` 顺序一致，未请求的类型字段省略；查无数据的站点仅含 `stcd`）：
+响应（`data.list` 与请求 `stcd` 顺序一致；每个站点的 `attr`/`capacity`/`discharge`
+三个字段固定返回，未请求的类型或查无数据时为空数组）：
 
 ```json
 {

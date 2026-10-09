@@ -28,12 +28,12 @@ type QueryResponseData struct {
 	List []StationData `json:"list"`
 }
 
-// StationData 单个站点的查询结果，按请求的 slb-type 填充对应字段
+// StationData 单个站点的查询结果，attr/capacity/discharge 三个字段固定返回，无数据时为空数组
 type StationData struct {
 	Stcd      string               `json:"stcd"`
-	Attr      []FeatureAttrItem    `json:"attr,omitempty"`
-	Capacity  []CapacityCurveItem  `json:"capacity,omitempty"`
-	Discharge []DischargeCurveItem `json:"discharge,omitempty"`
+	Attr      []FeatureAttrItem    `json:"attr"`
+	Capacity  []CapacityCurveItem  `json:"capacity"`
+	Discharge []DischargeCurveItem `json:"discharge"`
 }
 
 type FeatureAttrItem struct {
@@ -118,6 +118,7 @@ func derefString(p *string) string {
 }
 
 // normalizeRequest 去重、去空白并校验请求参数
+// types 为空（未传或空数组）时默认查询全部三类数据
 func normalizeRequest(stcd []string, types []string) ([]string, []string, error) {
 	codes := make([]string, 0, len(stcd))
 	seenCode := make(map[string]struct{}, len(stcd))
@@ -136,6 +137,10 @@ func normalizeRequest(stcd []string, types []string) ([]string, []string, error)
 		return nil, nil, fmt.Errorf("站点编号 stcd 不能为空")
 	}
 
+	if len(types) == 0 {
+		return codes, []string{TypeAttr, TypeCapacity, TypeDischarge}, nil
+	}
+
 	wanted := make([]string, 0, len(types))
 	seenType := make(map[string]struct{}, len(types))
 	for _, t := range types {
@@ -148,9 +153,6 @@ func normalizeRequest(stcd []string, types []string) ([]string, []string, error)
 		}
 		seenType[t] = struct{}{}
 		wanted = append(wanted, t)
-	}
-	if len(wanted) == 0 {
-		return nil, nil, fmt.Errorf("数据类型 slb-type 不能为空")
 	}
 
 	return codes, wanted, nil
@@ -168,11 +170,16 @@ func (s *ReservoirService) Query(ctx context.Context, stcd []string, types []str
 		return result, nil
 	}
 
-	// 按请求顺序组织站点结果
+	// 按请求顺序组织站点结果，三个字段初始化为空数组保证固定返回
 	stations := make([]*StationData, 0, len(codes))
 	index := make(map[string]*StationData, len(codes))
 	for _, code := range codes {
-		station := &StationData{Stcd: code}
+		station := &StationData{
+			Stcd:      code,
+			Attr:      make([]FeatureAttrItem, 0),
+			Capacity:  make([]CapacityCurveItem, 0),
+			Discharge: make([]DischargeCurveItem, 0),
+		}
 		stations = append(stations, station)
 		index[code] = station
 	}
