@@ -1,0 +1,18 @@
+# 版本控制 / IDE
+.git
+.gitignore
+.idea
+
+# 本地产物与日志
+logs/
+tmp/
+temp/
+
+# 配置含 DSN 等敏感信息，不打进镜像，部署时挂载或用环境变量覆盖
+config/
+
+# 与构建无关的文件
+*.md
+Dockerfile
+docker-compose.yml
+.dockerignore

@@ -1,0 +1,50 @@
+# 两个服务共享的基础配置
+x-web-app: &web-app
+  build: .
+  image: web-app:latest
+  restart: unless-stopped
+  # 代码内 HTTP 优雅关闭最长等待 30s，需大于默认的 10s，避免关闭过程中被 SIGKILL
+  stop_grace_period: 35s
+  environment:
+    # 容器内 127.0.0.1 指向容器自身，宿主机上的 MySQL 需用 host.docker.internal 访问
+    # 可通过环境变量 TOOLS_DSN 或同目录 .env 文件覆盖
+    tools_dsn: ${TOOLS_DSN:-root:123456@tcp(host.docker.internal:3306)/wechat?charset=utf8mb4&parseTime=True&loc=Local}
+    # debug: "false"              # 容器内关闭 gin debug 模式与 GORM SQL 打印时取消注释
+  extra_hosts:
+    - "host.docker.internal:host-gateway"   # 保证 Linux 宿主机上该域名也可用
+  volumes:
+    - ./config/app.yml:/app/config/app.yml
+    # - ./logs:/app/logs        # 需要日志文件落到宿主机时取消注释（Linux 注意目录属主/UID 匹配）
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "3"
+  networks:
+    - common-app-net
+
+services:
+  # HTTP 服务
+  web:
+    <<: *web-app
+    container_name: web-app
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+
+  # 定时任务进程，默认不启动：docker compose --profile worker up -d
+  # cron 为进程内调度，该服务只允许跑单个副本
+  worker:
+    <<: *web-app
+    container_name: web-app-worker
+    command: worker start
+    profiles: ["worker"]
+
+networks:
+  common-app-net:
+    external: true
