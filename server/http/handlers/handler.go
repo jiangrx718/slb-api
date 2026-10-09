@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"slb-api/server/http/handlers/wechat"
+	"slb-api/server/http/handlers/reservoir"
 	"slb-api/utils"
 
 	"github.com/gin-gonic/gin"
@@ -23,5 +23,5 @@ func NewHandler(router *gin.Engine) utils.HttpServerHandler {
 func (h *Handler) RegisterRoutes() {
 	g := h.router.Group("/api")
 
-	wechat.NewWechatUserHandler(h.router).RegisterRoutes(g)
+	reservoir.NewReservoirHandler(h.router).RegisterRoutes(g)
 }

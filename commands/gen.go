@@ -24,7 +24,9 @@ var generate = &cli.Command{
 		g.UseDB(conn)
 
 		g.ApplyBasic(
-			model.SWechatUser{},
+			model.ReservoirFeatureAttr{},
+			model.ReservoirCapacityCurve{},
+			model.ReservoirDischargeCurve{},
 		)
 
 		g.Execute()

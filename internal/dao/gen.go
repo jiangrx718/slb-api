@@ -16,26 +16,34 @@ import (
 )
 
 var (
-	Q           = new(Query)
-	SWechatUser *sWechatUser
+	Q                       = new(Query)
+	ReservoirCapacityCurve  *reservoirCapacityCurve
+	ReservoirDischargeCurve *reservoirDischargeCurve
+	ReservoirFeatureAttr    *reservoirFeatureAttr
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
-	SWechatUser = &Q.SWechatUser
+	ReservoirCapacityCurve = &Q.ReservoirCapacityCurve
+	ReservoirDischargeCurve = &Q.ReservoirDischargeCurve
+	ReservoirFeatureAttr = &Q.ReservoirFeatureAttr
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:          db,
-		SWechatUser: newSWechatUser(db, opts...),
+		db:                      db,
+		ReservoirCapacityCurve:  newReservoirCapacityCurve(db, opts...),
+		ReservoirDischargeCurve: newReservoirDischargeCurve(db, opts...),
+		ReservoirFeatureAttr:    newReservoirFeatureAttr(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	SWechatUser sWechatUser
+	ReservoirCapacityCurve  reservoirCapacityCurve
+	ReservoirDischargeCurve reservoirDischargeCurve
+	ReservoirFeatureAttr    reservoirFeatureAttr
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -44,8 +52,10 @@ func (q *Query) UnderlyingDB() *gorm.DB { return q.db }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:          db,
-		SWechatUser: q.SWechatUser.clone(db),
+		db:                      db,
+		ReservoirCapacityCurve:  q.ReservoirCapacityCurve.clone(db),
+		ReservoirDischargeCurve: q.ReservoirDischargeCurve.clone(db),
+		ReservoirFeatureAttr:    q.ReservoirFeatureAttr.clone(db),
 	}
 }
 
@@ -59,18 +69,24 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:          db,
-		SWechatUser: q.SWechatUser.replaceDB(db),
+		db:                      db,
+		ReservoirCapacityCurve:  q.ReservoirCapacityCurve.replaceDB(db),
+		ReservoirDischargeCurve: q.ReservoirDischargeCurve.replaceDB(db),
+		ReservoirFeatureAttr:    q.ReservoirFeatureAttr.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	SWechatUser ISWechatUserDo
+	ReservoirCapacityCurve  IReservoirCapacityCurveDo
+	ReservoirDischargeCurve IReservoirDischargeCurveDo
+	ReservoirFeatureAttr    IReservoirFeatureAttrDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		SWechatUser: q.SWechatUser.WithContext(ctx),
+		ReservoirCapacityCurve:  q.ReservoirCapacityCurve.WithContext(ctx),
+		ReservoirDischargeCurve: q.ReservoirDischargeCurve.WithContext(ctx),
+		ReservoirFeatureAttr:    q.ReservoirFeatureAttr.WithContext(ctx),
 	}
 }
 

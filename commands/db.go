@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"slb-api/model"
 	"slb-api/utils"
 
 	"github.com/urfave/cli/v2"
@@ -20,9 +19,7 @@ var dbCommand = &cli.Command{
 					return cli.Exit("database not initialized", 1)
 				}
 
-				if err := db.AutoMigrate(
-					&model.SWechatUser{},
-				); err != nil {
+				if err := db.AutoMigrate(); err != nil {
 					utils.Sugar().Errorf("AutoMigrate error %v", err)
 					return err
 				}

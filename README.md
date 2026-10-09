@@ -76,5 +76,83 @@ web/
 ```yaml
 tools:
   dialect: mysql
-  dsn: root:123456@tcp(127.0.0.1:3306)/wechat?charset=utf8mb4&parseTime=True&loc=Local
+  dsn: root:slb123456@tcp(127.0.0.1:33306)/slb_reservoir?charset=utf8mb4&parseTime=True&loc=Local
 ```
+
+本地数据由 Docker 容器 `slb-mysql` 提供（水库结构化数据，库 `slb_reservoir`，含
+`reservoir_feature_attr` / `reservoir_capacity_curve` / `reservoir_discharge_curve` 三张表，
+由 `/Users/jiang/slb/scripts/extract_reservoir_to_mysql.py` 入库，参见该目录下 README）。
+
+## 接口
+
+### POST /api/reservoir/query —— 水库数据查询
+
+按站点编号数组 + 数据类型数组查询已入库的结构化数据。
+
+请求体：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| stcd | string[] | 是 | 站点编号数组，如 `["7I505060","81811813"]` |
+| slb-type | string[] | 是 | 数据类型数组，可选值 `attr`（特征属性）/ `capacity`（库容曲线）/ `discharge`（泄流曲线） |
+
+```bash
+curl -s -X POST http://127.0.0.1:8080/api/reservoir/query \
+  -H 'Content-Type: application/json' \
+  -d '{"stcd":["7I505060","81811813"],"slb-type":["attr","capacity","discharge"]}'
+```
+
+响应（`data.list` 与请求 `stcd` 顺序一致，未请求的类型字段省略；查无数据的站点仅含 `stcd`）：
+
+```json
+{
+  "code": 0,
+  "msg": "success",
+  "data": {
+    "list": [
+      {
+        "stcd": "7I505060",
+        "attr": [
+          {
+            "region_code": "331123000197",
+            "file_name": "2023年度成屏二级水库控制运用计划报告",
+            "source_file": "aerial",
+            "table_index": 0,
+            "category": "工程位置",
+            "attr_name": "工程地点",
+            "attr_value": "…",
+            "unit": "",
+            "remark": ""
+          }
+        ],
+        "capacity": [
+          {
+            "region_code": "331123000197",
+            "file_name": "2023年度成屏二级水库控制运用计划报告",
+            "source_file": "capacity",
+            "table_index": 1,
+            "seq": 0,
+            "water_level": 230,
+            "capacity": 0,
+            "capacity_unit": "万m³"
+          }
+        ],
+        "discharge": [
+          {
+            "water_level": 263,
+            "discharge": 0,
+            "discharge_unit": "m³/s",
+            "seq": 0
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+错误：参数缺失/为空/类型非法返回 `{"code":400,"msg":"…"}`。
+
+### GET /api/wechat-user/list —— 微信用户列表（示例接口）
+
+原有示例接口，风格参考。
