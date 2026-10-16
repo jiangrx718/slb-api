@@ -36,18 +36,20 @@ type StationData struct {
 	Discharge []DischargeCurveItem `json:"discharge"`
 }
 
+// FeatureAttrItem 字段固定返回，无内容时以零值（空字符串/0）兜底
 type FeatureAttrItem struct {
 	RegionCode string `json:"region_code"`
 	FileName   string `json:"file_name"`
 	SourceFile string `json:"source_file"`
 	TableIndex int16  `json:"table_index"`
-	Category   string `json:"category,omitempty"`
+	Category   string `json:"category"`
 	AttrName   string `json:"attr_name"`
 	AttrValue  string `json:"attr_value"`
-	Unit       string `json:"unit,omitempty"`
-	Remark     string `json:"remark,omitempty"`
+	Unit       string `json:"unit"`
+	Remark     string `json:"remark"`
 }
 
+// CapacityCurveItem 字段固定返回，无内容时以零值（空字符串/0）兜底
 type CapacityCurveItem struct {
 	RegionCode   string  `json:"region_code"`
 	FileName     string  `json:"file_name"`
@@ -59,6 +61,7 @@ type CapacityCurveItem struct {
 	CapacityUnit string  `json:"capacity_unit"`
 }
 
+// DischargeCurveItem 字段固定返回，无内容时以零值（空字符串/0）兜底
 type DischargeCurveItem struct {
 	RegionCode    string  `json:"region_code"`
 	FileName      string  `json:"file_name"`
