@@ -1,7 +1,7 @@
 # 两个服务共享的基础配置
-x-web-app: &web-app
+x-slb-api: &slb-api
   build: .
-  image: web-app:latest
+  image: slb-api:1.0.0
   restart: unless-stopped
   # 代码内 HTTP 优雅关闭最长等待 30s，需大于默认的 10s，避免关闭过程中被 SIGKILL
   stop_grace_period: 35s
@@ -26,12 +26,12 @@ x-web-app: &web-app
 services:
   # HTTP 服务
   web:
-    <<: *web-app
-    container_name: web-app
+    <<: *slb-api
+    container_name: slb-api
     ports:
-      - "8080:8080"
+      - "8083:8083"
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/health"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8083/health"]
       interval: 30s
       timeout: 3s
       start_period: 5s
@@ -40,8 +40,8 @@ services:
   # 定时任务进程，默认不启动：docker compose --profile worker up -d
   # cron 为进程内调度，该服务只允许跑单个副本
   worker:
-    <<: *web-app
-    container_name: web-app-worker
+    <<: *slb-api
+    container_name: slb-api-worker
     command: worker start
     profiles: ["worker"]
 

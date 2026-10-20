@@ -37,7 +37,7 @@ func main() {
 
 // initConfig 初始化配置
 func initConfig(*cli.Context) error {
-	if err := utils.InitViper("web-app", configFile); err != nil {
+	if err := utils.InitViper("slb-api", configFile); err != nil {
 		return err
 	}
 

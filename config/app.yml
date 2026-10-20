@@ -1,14 +1,14 @@
 debug: true
-app: web-app
+app: slb-api
 server:
-  addr: ":8080"
+  addr: ":8083"
 log:
   development: true
   level: debug
   disable_sentry: true
   outputs:
     - stdout
-    - ./logs/web-app.log
+    - ./logs/slb-api.log
 tools:
   dialect: mysql
   dsn: root:123456@tcp(127.0.0.1:3306)/slb-reservoir?charset=utf8mb4&parseTime=True&loc=Local

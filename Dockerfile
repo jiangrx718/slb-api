@@ -26,7 +26,7 @@ COPY . .
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
-    go build -ldflags="-s -w -X main.Version=${VERSION}" -trimpath -o web-app .
+    go build -ldflags="-s -w -X main.Version=${VERSION}" -trimpath -o slb-api .
 
 # ===== 运行阶段 =====
 # 仍用 alpine:3.19：本机镜像加速器拉不到新 tag（403）、直连 Docker Hub 超时，
@@ -44,11 +44,11 @@ RUN apk add --no-cache ca-certificates tzdata \
 
 WORKDIR /app
 
-COPY --from=builder /app/web-app ./web-app
+COPY --from=builder /app/slb-api ./slb-api
 
 # 以非 root 身份运行，减小攻击面
 USER app
 
-EXPOSE 8080
+EXPOSE 8083
 
-ENTRYPOINT ["./web-app"]
+ENTRYPOINT ["./slb-api"]

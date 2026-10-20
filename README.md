@@ -1,4 +1,4 @@
-# web-app
+# slb-api
 
 基于 Go 语言开发的 Web 服务，提供 HTTP 接口与定时任务（cron）能力，当前内置微信用户（`s_wechat_user`）查询接口。项目采用分层架构（Handler → Service → DAO → Model），通过 `urfave/cli` 将 HTTP 服务、定时任务、数据库迁移、代码生成统一为同一二进制的不同子命令。
 
@@ -97,7 +97,7 @@ tools:
 | slb-type | string[] | 否 | 数据类型数组，可选值 `attr`（特征属性）/ `capacity`（库容曲线）/ `discharge`（泄流曲线）；未传或为空数组时默认查询全部三类 |
 
 ```bash
-curl -s -X POST http://127.0.0.1:8080/api/reservoir/query \
+curl -s -X POST http://127.0.0.1:8083/api/reservoir/query \
   -H 'Content-Type: application/json' \
   -d '{"stcd":["7I505060","81811813"],"slb-type":["attr","capacity","discharge"]}'
 ```
